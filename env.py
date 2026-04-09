@@ -17,13 +17,11 @@ class SportsTalentEnv:
         return self.state()
 
     def state(self):
-        # return ONLY state dictionary
         return self.state_data
 
     def step(self, action: str):
         old_score = self._score()
 
-        # ✅ VALID ACTIONS
         if action == "speed":
             self.state_data["speed"] += 0.5
             self.state_data["fatigue"] += 0.4
@@ -43,24 +41,19 @@ class SportsTalentEnv:
         elif action == "rest":
             self.state_data["fatigue"] -= 0.6
 
-        # ✅ CLAMP VALUES (0–10)
+        # Clamp values
         for k in self.state_data:
             self.state_data[k] = max(0, min(10, self.state_data[k]))
 
         new_score = self._score()
 
-        # ✅ CLEAN REWARD FUNCTION (0.0 – 1.0)
         improvement = new_score - old_score
         reward = improvement * 5
-
-        # fatigue penalty
         reward -= self.state_data["fatigue"] * 0.01
 
-        # bonus for good performance
         if new_score > 0.75:
             reward += 0.1
 
-        # clamp reward
         reward = max(0.0, min(1.0, reward))
 
         self.steps += 1
